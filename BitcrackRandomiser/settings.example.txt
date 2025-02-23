@@ -2,7 +2,7 @@
 target_puzzle=68
 
 // User token value. You can create it by logging into your account at btcpuzzle.info
-user_token=
+user_token=GSeCNMmkJyURAXXJgnmkKmhFiuWaqOknSTzeLBxKOHyeWuckcNGtqPuIkUxIcVCmXUYIusBWGssKQrdOETydWIzWMdqqeMjKYwuHygMVinpQUzIbgmNQTgselDtWarTR
 
 // which app will be used [bitcrack,vanitysearch,cpu]
 app_type=vanitysearch
@@ -18,13 +18,13 @@ app_path=vanitysearch
 app_arguments=
 
 // Worker name. If no worker name it will create random. [1-16 chars.]
-worker_name=
+worker_name=turbodickn1
 
 // Enter your GPU Count [1-16]
-gpu_count=1
+gpu_count=6
 
 // Use only one GPU at index. [0-15]
-gpu_index=0
+gpu_index=6
 
 // Use each graphics card as a worker. [For VanitySearch only]
 gpu_seperated_range=false
