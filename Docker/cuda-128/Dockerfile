@@ -1,7 +1,8 @@
-FROM nvidia/cuda:12.0.0-devel-ubuntu20.04
+#ilkercndk/bitcrackrandomiser:cuda-128
+FROM nvidia/cuda:12.8.0-devel-ubuntu20.04
 
 # Variables
-ENV BC_PUZZLE=68
+ENV BC_PUZZLE=69
 ENV BC_USERTOKEN="0"
 ENV BC_WORKERNAME=""
 ENV BC_APP_TYPE="vanitysearch"
@@ -9,7 +10,7 @@ ENV BC_APP="/app/VanitySearch/./vanitysearch"
 ENV BC_APP_ARGS=""
 ENV BC_GPUCOUNT="1"
 ENV BC_GPUINDEX="0"
-ENV BC_GPUSEPERATEDRANGE="false"
+ENV BC_GPUSEPERATEDRANGE="true"
 ENV BC_CUSTOM_RANGE="none"
 ENV BC_API_SHARE="none"
 ENV BC_TELEGRAM_SHARE="false"
@@ -18,32 +19,22 @@ ENV BC_TELEGRAM_CHAT_ID="0"
 ENV BC_TELEGRAM_SHARE_EACHKEY="false"
 ENV BC_UNTRUSTED_COMPUTER="false"
 ENV BC_FORCE_CONTINUE="false"
+ENV BC_CLOUDSEARCHMODE="true"
 
-# Build Variables
-ENV BITCRACKCCAP=86
-ENV VANITYCCAP=2.0
-
-# Clone and build bitcrack. For older graphics cards, you can lower the <COMPUTE_CAP> value.
+# Install updates
 WORKDIR /app
 RUN apt-get update \
  && apt-get install git nano curl -y
-RUN git clone https://github.com/brichard19/BitCrack
-WORKDIR /app/BitCrack
-
-# Build for AMD and OpenCL devices
-#RUN make BUILD_OPENCL=1 COMPUTE_CAP=${BITCRACKCCAP}
-# Build for NVIDIA CUDA devices
-RUN make BUILD_CUDA=1 COMPUTE_CAP=${BITCRACKCCAP}
 
 # Clone and build vanitysearch.
 WORKDIR /app
-RUN git clone https://github.com/ilkerccom/VanitySearch
+RUN git clone https://github.com/ilkerccom/VanitySearch-V2 /app/VanitySearch
 WORKDIR /app/VanitySearch
+RUN sed -i 's|/usr/local/cuda-12.2|/usr/local/cuda-12.8|g' Makefile
+RUN sed -i 's|ccap=89|ccap=120|g' Makefile
 
-# Build for CPU
-#RUN make all
 # Build for NVIDIA CUDA devices
-RUN make gpu=1 CCAP=${VANITYCCAP} all
+RUN make gpu=1 all
 
 # Install .NET Core
 ENV DOTNET_SDK_VERSION 8.0.406
@@ -61,15 +52,14 @@ ENV DOTNET_RUNNING_IN_CONTAINER=true \
 # Clone and build bitcrackrandomiser
 WORKDIR /app/cloned
 RUN git clone https://github.com/ilkerccom/bitcrackrandomiser.git
-#COPY bitcrackrandomiser /app/cloned/bitcrackrandomiser/BitcrackRandomiser
 WORKDIR /app/cloned/bitcrackrandomiser/BitcrackRandomiser
 RUN dotnet publish --configuration Release --output /app/bitcrackrandomiser
 
 # Copy entrypoint
 COPY bitcrackrandomiser.sh /app/bitcrackrandomiser
-RUN chmod +x /app/bitcrackrandomiser/Apps/bitcrack/./cuBitcrack
 RUN chmod +x /app/bitcrackrandomiser/Apps/vanitysearch/./vanitysearch
 RUN chmod +x /app/bitcrackrandomiser/bitcrackrandomiser.sh
 
 # Its ready to run
 WORKDIR /app/bitcrackrandomiser
+#CMD ["/app/bitcrackrandomiser/bitcrackrandomiser.sh"]

@@ -9,6 +9,11 @@ namespace BitcrackRandomiser
     static class Program
     {
         /// <summary>
+        /// App is working in any cloud service
+        /// </summary>
+        public static bool isCloudSearchMode = false;
+
+        /// <summary>
         /// Main function
         /// </summary>
         /// <param name="args"></param>
@@ -16,6 +21,7 @@ namespace BitcrackRandomiser
         {
             // Get settings
             var appSettings = SettingsService.GetSettings(args);
+            isCloudSearchMode = appSettings.CloudSearchMode;
 
             // Edit settings
             Helper.WriteLine($"Press <enter> to edit settings or wait for 3 seconds to load app with <settings.txt>");

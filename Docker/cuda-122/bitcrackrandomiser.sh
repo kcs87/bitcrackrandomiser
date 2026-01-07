@@ -2,35 +2,17 @@
 
 # Get GPU count
 GPUCOUNTS=$(nvidia-smi -L |wc -l)
-APPPATH="${BC_APP}"
-APPARGS="${BC_APP_ARGS}"
-
-# Set vanitysearch path and args
-if [ "${BC_APP_TYPE}" = "vanitysearch" ]; then 
-	APPPATH="/app/VanitySearch/./vanitysearch"
-	if [ "${BC_APP_ARGS}" = "-b 896 -t 256 -p 256" ]; then
-		APPARGS=""
-	fi
-fi
-
-# Set bitcrack path and args
-if [ "${BC_APP_TYPE}" = "bitcrack" ]; then 
-	APPPATH="/app/BitCrack/bin/./cuBitCrack"
-	if [ "${BC_APP_ARGS}" = "" ]; then
-		APPARGS="-b 896 -t 256 -p 256"
-	fi
-fi
 
 # Run bitcrackrandomiser
 dotnet BitcrackRandomiser.dll \
 	app_type=${BC_APP_TYPE} \
-	app_path=${APPPATH} \
-	app_arguments="${APPARGS}" \
+	app_path=${BC_APP} \
+	app_arguments="${BC_APP_ARGS}" \
 	user_token=${BC_USERTOKEN} \
 	worker_name=${BC_WORKERNAME} \
 	gpu_count=${GPUCOUNTS} \
 	gpu_index=${BC_GPUINDEX} \
-	gpu_seperated_range=${BC_GPUSEPERATEDRANGE} \
+	gpu_seperated_range="true" \
 	target_puzzle=${BC_PUZZLE} \
 	custom_range=${BC_CUSTOM_RANGE} \
 	api_share=${BC_API_SHARE} \
@@ -39,4 +21,5 @@ dotnet BitcrackRandomiser.dll \
 	telegram_chatid=${BC_TELEGRAM_CHAT_ID} \
 	telegram_share_eachkey=${BC_TELEGRAM_SHARE_EACHKEY} \
 	untrusted_computer=${BC_UNTRUSTED_COMPUTER} \
-	force_continue=${BC_FORCE_CONTINUE}
+	force_continue=${BC_FORCE_CONTINUE} \
+	cloud_search_mode=${BC_CLOUDSEARCHMODE}

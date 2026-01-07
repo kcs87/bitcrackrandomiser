@@ -1,6 +1,6 @@
 # Bitcrack-Randomiser
 
-Bitcrackrandomiser is a solo pool project for Bitcoin puzzle **66, 67, 68, 69 and 71**. (Technically supports up to Puzzle 160). It works with Bitcrack and VanitySearch.
+Bitcrackrandomiser is a solo pool project for Bitcoin puzzle **69, 70 and 72**. (Technically supports up to Puzzle 160). It works with Bitcrack and VanitySearch.
 
 Official client for "btcpuzzle.info pool".
 
@@ -26,6 +26,7 @@ You can build the client and all the applications used yourself. %100 open-sourc
 
 - Bitcrack ([Go repo](https://github.com/brichard19/BitCrack))
 - VanitySearch ([Go repo](https://github.com/ilkerccom/VanitySearch))
+- VanitySearch (Optimised) ([Go repo](https://github.com/ilkerccom/VanitySearch-V2))
 - Bitcrackrandomiser (This repo)
 
 Endless thanks to everyone involved in the development of Bitcrack and VanitySearch applications.
@@ -39,35 +40,37 @@ It only works with BTC Puzzle 68, 69 and 71 (You can change the puzzle number fr
 
 When requesting a range from the pool, **three wallet addresses** are also returned. The private key of these addresses is scanned simultaneously. To ensure that a range is scanned, the private key of three wallet addresses must be found. The private keys of the found addresses are hashed with SHA256. In this way, **"Proof Key"** is created. This is to make sure your program is working correctly. I also want to make sure you have a really healthy scan.
 
-Example; pool returns `3E2ECB0` HEX range to scan. The pool randomly generates <ins>extra three private keys</ins> within the returned HEX range. `3E2ECB00000000000` and `3E2ECB0FFFFFFFFFF`. 
+Example; pool returns `3E2ECB0` HEX range to scan. The pool randomly generates <ins>extra 6 private keys</ins> within the returned HEX range. `3E2ECB00000000000` and `3E2ECB0FFFFFFFFFF`. 
 
-Marking is done with `SHA256(PROOFKEY1+PROOFKEY2+PROOFKEY3)`
+Marking is done with `SHA256(PROOFKEY1+PROOFKEY2+PROOFKEY3+PROOFKEY4+PROOFKEY5+PROOFKEY6)`
 
-<ins>**Note:** The number of proof keys can be increased/decreased dynamically by the API. By standard the total number is 3.</ins>
+<ins>**Note:** The number of proof keys can be increased/decreased dynamically by the API. By standard the total number is 6.</ins>
 
-## Example Puzzle 66 Scenario
+## Example Puzzle 68 Scenario
 
-If you want to **scan all private keys in  puzzle 66**; you need to do 36 quintillion scans in total. In case you do a random scan; previously generated private keys will be regenerated (random problem). This extends the scan time by x10. Puzzle 66 HEX ranges as follows. It starts with 2 or 3. Any private key in this range is **17 characters long.**
+If you want to **scan all private keys in  puzzle 68**; you need to do ~143 quintillion (143,172,492,000,000,000) scans in total. In case you do a random scan; previously generated private keys will be regenerated (random problem). This extends the scan time by min. x10. Puzzle 68 HEX ranges as follows. Any private key in this range is **17 characters long.**
 
-`20000000000000000 to
-3ffffffffffffffff`
+`80000000000000000 to
+fffffffffffffffff`
 
-**We take the first 7 characters** and delete the rest for now. The result will be as follows.
+**We take the first 7 characters** and delete the rest for now. *Some puzzles can be 8 characters or more. The result will be as follows. 
 
-`2000000 to
-3ffffff`
+`8000000 to
+fffffff`
 
-We now have about 33 million possible ranges to search. All possible ranges are **stored in the database**. A random value will come up each time a scan job is called and **will be marked as scanned** when the scan is complete. Note: Each range contains 1,1 trillion private keys.
+We now have about ~33 million possible ranges to search. (If you convert this HEX range to decimal format, it actually becomes 134 million ranges. However, since each range contains 4 times the private key, we set it to 33 million.) All possible ranges are **stored in the database**. A random value will come up each time a scan job is called and **will be marked as scanned** when the scan is complete. 
 
-I can scan each range in about 10 minutes on NVIDIA 3090. This actually means about 1,1 trillion private keys. When the range is scanned, it is marked as scanned. So it won't show up anymore.
+***Note: Each range contains 4,4 trillion private keys in Puzzle 68.*** You can find information such as how many keys each puzzle contains on the website.
 
-For Puzzle 66: 2000000-2050000 (First ~%0.98) ranges and 3FAF000-3FFFFFF (Last ~%0.98) manually defeated in this pool. If you rescan a defeated range, it will now be marked as scanned normal.
+This actually means about 4,4 trillion private keys. When the range is scanned, it is marked as scanned. So it won't show up anymore.
 
 ## Example
 
-Random range from database: **326FB80**
+Random range from database: **926FB80**
 
-The program tells Bitcrack/VanitySearch to scan the following range: **326FB800000000000** / **326FB80FFFFFFFFFF** (Contains 1,1 trillion private keys)
+The program tells Bitcrack/VanitySearch to scan the following range: 
+
+**926FB800000000000** / **926FB83FFFFFFFFFF** (Contains 4,4 trillion private keys) (*Note that we added +4 to the starting HEX value. 926FB80:926FB84)
 
 When the range is scanned, a new range is requested and the process proceeds in this way.
 
@@ -97,13 +100,25 @@ If you're looking for the easiest way to join the pool, you're in the right plac
 
 3 - Create a template and rent the instance you want. That is all!
 
-## Using Docker Images
+## 
+Images
 
-You can use docker image for a faster experience. You can also create your own docker image. "[Dockerfile](./Docker/Dockerfile)" is available in the repo. Visit the [Bitcrackrandomiser Docker Images](https://hub.docker.com/r/ilkercndk/bitcrackrandomiser/tags)
+You can use docker image for a faster experience. You can also create your own docker image. "[Dockerfiles](./Docker)" is available in the repo. Visit the [Bitcrackrandomiser Docker Images](https://hub.docker.com/r/ilkercndk/bitcrackrandomiser/tags)
 
 <ins>What needs to be done above is ready in the Docker image. All you have to do is run the application.</ins>
 
-
+- ***ilkercndk/bitcrackrandomiser:<ins>latest</ins>***
+  - The default vanitysearch is used. You can scan with multiple GPUs on a range.
+  - It scans slower than the optimized VanitySearch.
+  - Supports maximum RTX 4000 series GPUs.
+- ***ilkercndk/bitcrackrandomiser:<ins>cuda-122</ins>***
+  - The optimised vanitysearch is used. A maximum of 1 GPU can be used for each range.
+  - It scans faster than the default VanitySearch.
+  - Supports maximum RTX 4000 series GPUs.
+- ***ilkercndk/bitcrackrandomiser:<ins>cuda-128</ins>***
+  - The optimised vanitysearch is used. A maximum of 1 GPU can be used for each range.
+  - It scans faster than the default VanitySearch.
+  - Supports maximum RTX 5000 series GPUs.
 
 ### # ilkercndk/bitcrackrandomiser:latest
 
@@ -120,42 +135,29 @@ Don't forget to add the `--gpus all` flag when running on your local computer.
 ```bash
 $ docker run --gpus all -it ilkercndk/bitcrackrandomiser:latest
 ```
-
-### # ilkercndk/bitcrackrandomiser:autorun
-
-Everything is ready! When you run the image, <ins>bitcrackrandomiser</ins> starts automatically. You can see the Docker create/run settings in the example below. Does not need interactive console.
+Using env. variables
 
 ```bash
-$ docker run -e BC_WALLET=xxxx -e BC_USERTOKEN=xxxx ilkercndk/bitcrackrandomiser:autorun
+$ docker run --gpus all -it ilkercndk/bitcrackrandomiser:latest -e BC_USERTOKEN=xxx -e BC_WORKER=workername ...
 ```
-
-Example run Bitcrack  on Vast.ai;
+You can add auto start script
 
 ```bash
-$ docker run -e BC_APP_TYPE=bitcrack ilkercndk/bitcrackrandomiser:autorun
+bash /app/bitcrackrandomiser/bitcrackrandomiser.sh
 ```
-
-Example run VanitySearch on Vast.ai;
-
-```bash
-$ docker run -e BC_APP_TYPE=vanitysearch ilkercndk/bitcrackrandomiser:autorun
-```
-
-If you do not send the ```BC_APP_TYPE``` value, "vanitysearch" will run by default. You do not need to send the ```BC_GPUCOUNT``` value. The number of GPUs will automatically calculate the total number of graphics cards on the instance and the application will be run.
-
-
 
 ### Docker options with default settings
 
 ```bash
 BC_PUZZLE=68
-BC_USERTOKEN=""
-BC_WORKER="workerdefault"
+BC_USERTOKEN="0"
+BC_WORKERNAME=""
 BC_APP_TYPE="vanitysearch"
 BC_APP="/app/VanitySearch/./vanitysearch"
 BC_APP_ARGS=""
 BC_GPUCOUNT="1"
 BC_GPUINDEX="0"
+BC_GPUSEPERATEDRANGE="true"
 BC_CUSTOM_RANGE="none"
 BC_API_SHARE="none"
 BC_TELEGRAM_SHARE="false"
@@ -164,6 +166,7 @@ BC_TELEGRAM_CHAT_ID="0"
 BC_TELEGRAM_SHARE_EACHKEY="false"
 BC_UNTRUSTED_COMPUTER="false"
 BC_FORCE_CONTINUE="false"
+BC_CLOUDSEARCHMODE="true"
 ```
 
 # Settings
@@ -173,7 +176,7 @@ You can update the application settings via the "[settings.txt](./BitcrackRandom
 Also, You can pass arguments to the application as in the example below.
 
 ```
-dotnet BitcrackRandomiser.dll target_puzzle=68 user_token=xxxx wallet_address=1eosEvvesKV6C2ka4RDNZhmepm1TLFBtw ...any other settings
+dotnet BitcrackRandomiser.dll target_puzzle=68 user_token=xxxx ...any other settings
 ```
 
 ---
@@ -239,9 +242,9 @@ Example user token value;
 
 ### [**worker_name**]
 
-Enter the BTC wallet address here. 
+Enter the worker name.
 
-`worker4124`
+`worker4124` or `anyworkername`
 
 Only alphanumeric is accepted. Max 16 characters. Do not use special characters. If you do not enter a worker name, it will be created automatically.
 
@@ -317,7 +320,6 @@ status // [workerStarted, workerExited, rangeScanned, reachedOfKeySpace, keyFoun
 hex // Scanned HEX value
 privatekey // Private key if that found
 targetpuzzle // Which puzzle is being scanned
-workeraddress // Worker wallet address [1eosEvvesKV6C2ka4RDNZhmepm1TLFBtw]
 workername // Worker name [worker1039]
 ```
 
@@ -328,25 +330,24 @@ I wrote a sample PHP script to get the data. It sends info to Telegram.
 $headers = getallheaders();
 $status = $headers['Status'];
 $hex = $headers['Hex'];
-$workeraddress = $headers['Workeraddress'];
 $workername = $headers['Workername'];
 $privatekey = $headers['Privatekey'];
 $targetpuzzle = $headers['Targetpuzzle'];
 
 if($status == "workerStarted"){
-	shareTelegram($workeraddress.$workername." started job!");
+	shareTelegram($workername." started job!");
 }
 else if($status == "workerExited"){
-	shareTelegram($workeraddress.$workername." goes offline!");
+	shareTelegram($workername." goes offline!");
 }
 else if($status == "rangeScanned"){
-	shareTelegram($hex." scanned by ".$workeraddress.$workername);
+	shareTelegram($hex." scanned by ".$workername);
 }
 else if($status == "reachedOfKeySpace"){
-	shareTelegram($workeraddress.$workername." reached of keyspace!");
+	shareTelegram($workername." reached of keyspace!");
 }
 else if($status == "keyFound"){
-	shareTelegram("Congratulations! ".$workeraddress.$workername." found the key! Key is: ".$privatekey);
+	shareTelegram("Congratulations! ".$workername." found the key! Key is: ".$privatekey);
 }
 function shareTelegram($message){
 	$apiToken = "{telegram_api_token}";
@@ -415,27 +416,6 @@ Leave true if you are working on an untrusted computer
 
 `false` When private key is found, The private key will be <ins>saved in a new text file</ins> and it <ins>appears on console screen</ins>. If Telegram share is active, notification will be sent.
 
-
-
----
-
-### [**test_mode**] 
-
-Start app in test mode if `true`. You can test with custom parameters by creating a "**customtest.txt**" file in the app root folder.
-
-```C
-1Cnrx6rxiGvVNw1UroYM5hRjVvqPnWC7fR // [TargetAddress]
-2012E83 // [HexStart]
-2012E84 // [HexEnd]
-```
-
-<ins>[TargetAddress]</ins> The private key you want to find
-
-<ins>[HexStart]</ins> HEX range to start scanning
-
-<ins>[HexEnd]</ins> HEX range to stop scanning
-
-
 ---
 
 ### [**force_continue**] 
@@ -446,12 +426,6 @@ Start app in test mode if `true`. You can test with custom parameters by creatin
 
 ---
 
-
-### [**enable_logging**]
-
-`true` or `false`.
-
-Stores error and information messages in a text file. Logging is disabled by default.
 
 ## Tips
 
@@ -483,7 +457,7 @@ $ docker build -t bitcrackrandomiser .
 2 - Tag the image (for push to hub). With your `{username}/{image_name}:{tag}.`
 
 ```bash
-$ docker tag bitcrackrandomiser ilkercndk/bitcrackrandomiser:autorun
+$ docker tag bitcrackrandomiser ilkercndk/bitcrackrandomiser:latest
 ```
 
 3 - Push image to docker hub or use it local!

@@ -262,7 +262,11 @@ namespace BitcrackRandomiser.Services.Randomiser
             {
                 // A private key found
                 if (isProofKeys[gpuIndex])
-                    proofKeys[gpuIndex] += status.Content;
+                {
+                    proofKeys[gpuIndex] ??= "";
+                    if (!proofKeys[gpuIndex].ToString().Contains(status.Content))
+                        proofKeys[gpuIndex] += status.Content;
+                }
                 else if (isRewardKeys[gpuIndex])
                 {
                     // Reward found
